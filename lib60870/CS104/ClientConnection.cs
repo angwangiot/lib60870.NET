@@ -203,7 +203,7 @@ namespace lib60870.CS104
             this.fileServer.SetFileReadyHandler (server.fileReadyHandler, server.fileReadyHandlerParameter);
 
             Thread workerThread = new Thread(HandleConnection);
-
+            workerThread.IsBackground = true;
             workerThread.Start();
         }
 

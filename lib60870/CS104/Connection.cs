@@ -1212,7 +1212,7 @@ namespace lib60870.CS104
                 ResetT3Timeout();
 
                 workerThread = new Thread(HandleConnection);
-
+                workerThread.IsBackground = true;
                 workerThread.Start();
             }
             else

@@ -1895,8 +1895,11 @@ namespace lib60870.CS104
                         {
                             DebugLog("Setup TLS");
 
+#if NET40
+                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | (SecurityProtocolType)12288 /* TLS 1.3 */;
+#else
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | (SecurityProtocolType)12288 /* TLS 1.3 */;
-
+#endif
                             RemoteCertificateValidationCallback validationCallback = CertificateValidationCallback;
 
                             if (tlsSecInfo.CertificateValidationCallback != null)
@@ -2091,24 +2094,23 @@ namespace lib60870.CS104
                         DebugLog("CLOSE CONNECTION!");
 
 
-                        if (unconfirmedReceivedIMessages > 0)
-                        {
-                            /* confirm all unconfirmed messages before stopping the connection */
-
-                            lastConfirmationTime = SystemUtils.currentTimeMillis();
-
-                            unconfirmedReceivedIMessages = 0;
-                            timeoutT2Triggered = false;
-
-                            SendSMessage();
-                        }
-
-
                         running = false;
                         socketError = true;
 
                         if (socket.Connected)
                         {
+                            if (unconfirmedReceivedIMessages > 0)
+                            {
+                                /* confirm all unconfirmed messages before stopping the connection */
+
+                                lastConfirmationTime = SystemUtils.currentTimeMillis();
+
+                                unconfirmedReceivedIMessages = 0;
+                                timeoutT2Triggered = false;
+
+                                SendSMessage();
+                            }
+
                             try
                             {
                                 socket.Shutdown(SocketShutdown.Receive);

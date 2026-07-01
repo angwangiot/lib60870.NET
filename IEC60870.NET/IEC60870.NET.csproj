@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2;netcoreapp2.1;netcoreapp2.0;net40;net45;net451;net452;net46;net461;net462;net47;net471;net472;net48</TargetFrameworks>
+    <TargetFrameworks>net5.0;netcoreapp3.1;netcoreapp3.0;netcoreapp2.2;netcoreapp2.1;netcoreapp2.0;net40;net45;net451;net452;net46;net461;net462;net47;net471;net472;net48</TargetFrameworks>
     <AssemblyName>IEC60870.NET</AssemblyName>
-    <AssemblyVersion>2.3.0.0</AssemblyVersion>
+    <AssemblyVersion>2.3.1.0</AssemblyVersion>
     <RootNamespace>IEC60870.NET</RootNamespace>
     <DebugSymbols>false</DebugSymbols>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>IEC60870.NET</Description>
-    <Version>2.3.0</Version>
+    <Version>2.3.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Compile Include="..\lib60870\ASDUParsingException.cs" Link="ASDUParsingException.cs" />
+	  <Compile Include="..\lib60870\ASDUQueue.cs" Link="ASDUQueue.cs" />
     <Compile Include="..\lib60870\BufferFrame.cs" Link="BufferFrame.cs" />
     <Compile Include="..\lib60870\ConnectionException.cs" Link="ConnectionException.cs" />
     <Compile Include="..\lib60870\CP16Time2a.cs" Link="CP16Time2a.cs" />

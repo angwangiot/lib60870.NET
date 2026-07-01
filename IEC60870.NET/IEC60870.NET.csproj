@@ -125,25 +125,25 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="System.IO.Ports">
-      <Version>6.0.0</Version>
+      <Version>4.7.0</Version>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="System.IO.Ports">
-      <Version>6.0.0</Version>
+      <Version>4.7.0</Version>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.2'">
     <PackageReference Include="System.IO.Ports">
-      <Version>6.0.0</Version>
+      <Version>4.7.0</Version>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="System.IO.Ports">
-      <Version>6.0.0</Version>
+      <Version>4.7.0</Version>
     </PackageReference>
   </ItemGroup>
 

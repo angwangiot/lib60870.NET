@@ -1,7 +1,7 @@
 ﻿/*
  *  FileObjects.cs
  *
- *  Copyright 2017 MZ Automation GmbH
+ *  Copyright 2016-2025 Michael Zillgith
  *
  *  This file is part of lib60870.NET
  *
@@ -21,9 +21,6 @@
  *  See COPYING file for the complete license text.
  */
 
-using System;
-using System.Collections.Generic;
-
 namespace lib60870.CS101
 {
     /// <summary>
@@ -38,6 +35,9 @@ namespace lib60870.CS101
         SEQUENCES_OF_ANALOGUE_VALUES = 4
     }
 
+    /// <summary>
+    /// Select and call qualifier (SCQ)
+    /// </summary>
     public enum SelectAndCallQualifier : byte
     {
         DEFAULT = 0,
@@ -50,6 +50,9 @@ namespace lib60870.CS101
         DEACTIVATE_SECTION = 7
     }
 
+    /// <summary>
+    /// Last section or segment qualifier (LSQ)
+    /// </summary>
     public enum LastSectionOrSegmentQualifier : byte
     {
         NOT_USED = 0,
@@ -59,6 +62,9 @@ namespace lib60870.CS101
         SECTION_TRANSFER_WITH_DEACT = 4
     }
 
+    /// <summary>
+    /// Acknowledge qualifier (AFQ)
+    /// </summary>
     public enum AcknowledgeQualifier
     {
         NOT_USED = 0,
@@ -68,6 +74,9 @@ namespace lib60870.CS101
         NEG_ACK_SECTION = 4
     }
 
+    /// <summary>
+    /// File Error
+    /// </summary>
     public enum FileError
     {
         DEFAULT = 0,
@@ -115,7 +124,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nof;
+                return nof;
             }
             set
             {
@@ -127,7 +136,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.lengthOfFile;
+                return lengthOfFile;
             }
             set
             {
@@ -142,7 +151,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.frq;
+                return frq;
             }
             set
             {
@@ -250,7 +259,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nof;
+                return nof;
             }
             set
             {
@@ -262,7 +271,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nameOfSection;
+                return nameOfSection;
             }
             set
             {
@@ -274,7 +283,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.lengthOfSection;
+                return lengthOfSection;
             }
             set
             {
@@ -290,7 +299,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.srq;
+                return srq;
             }
             set
             {
@@ -394,7 +403,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nof;
+                return nof;
             }
             set
             {
@@ -406,7 +415,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nameOfSection;
+                return nameOfSection;
             }
             set
             {
@@ -422,7 +431,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.scq;
+                return scq;
             }
             set
             {
@@ -510,7 +519,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nof;
+                return nof;
             }
             set
             {
@@ -522,7 +531,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nameOfSection;
+                return nameOfSection;
             }
             set
             {
@@ -534,7 +543,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.lsq;
+                return lsq;
             }
             set
             {
@@ -550,7 +559,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.chs;
+                return chs;
             }
             set
             {
@@ -588,7 +597,7 @@ namespace lib60870.CS101
             this.nof = nof;
             this.nameOfSection = nameOfSection;
             this.lsq = lsq;
-            this.chs = checksum;
+            chs = checksum;
         }
 
         public override void Encode(Frame frame, ApplicationLayerParameters parameters, bool isSequence)
@@ -640,7 +649,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nof;
+                return nof;
             }
             set
             {
@@ -652,7 +661,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nameOfSection;
+                return nameOfSection;
             }
             set
             {
@@ -668,7 +677,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return  (AcknowledgeQualifier)(this.afq & 0x0f);
+                return (AcknowledgeQualifier)(afq & 0x0f);
             }
             set
             {
@@ -729,8 +738,8 @@ namespace lib60870.CS101
         {
             this.nof = nof;
             this.nameOfSection = nameOfSection;
-            this.AckQualifier = qualifier;
-            this.ErrorCode = errorCode;
+            AckQualifier = qualifier;
+            ErrorCode = errorCode;
         }
 
         public override void Encode(Frame frame, ApplicationLayerParameters parameters, bool isSequence)
@@ -783,7 +792,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nof;
+                return nof;
             }
             set
             {
@@ -795,11 +804,11 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.lengthOfFile;
+                return lengthOfFile;
             }
             set
             {
-                this.lengthOfFile = value;
+                lengthOfFile = value;
             }
         }
 
@@ -811,7 +820,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.sof;
+                return sof;
             }
             set
             {
@@ -823,7 +832,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return (int)(sof & 0x1f);
+                return sof & 0x1f;
             }
         }
 
@@ -923,7 +932,7 @@ namespace lib60870.CS101
             frame.SetNextByte((byte)((lengthOfFile / 0x100) % 0x100));
             frame.SetNextByte((byte)((lengthOfFile / 0x10000) % 0x100));
 
-            frame.SetNextByte((byte)sof);
+            frame.SetNextByte(sof);
 
             frame.AppendBytes(creationTime.GetEncodedValue());
         }
@@ -969,7 +978,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nof;
+                return nof;
             }
             set
             {
@@ -981,7 +990,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.nameOfSection;
+                return nameOfSection;
             }
             set
             {
@@ -1039,7 +1048,7 @@ namespace lib60870.CS101
 
             for (int i = 0; i < los; i++)
                 data[i] = msg[startIndex++];
-				
+
         }
 
         public FileSegment(int objectAddress, NameOfFile nof, byte nameOfSection, byte[] data)
@@ -1048,7 +1057,7 @@ namespace lib60870.CS101
             this.nof = nof;
             this.nameOfSection = nameOfSection;
             this.data = data;
-            this.los = (byte)data.Length;
+            los = (byte)data.Length;
         }
 
         public override void Encode(Frame frame, ApplicationLayerParameters parameters, bool isSequence)
@@ -1078,7 +1087,7 @@ namespace lib60870.CS101
                  - parameters.SizeOfCOT
                  - parameters.SizeOfIOA
                  - ENCODED_SIZE;
-			
+
             return maxSize;
         }
     }

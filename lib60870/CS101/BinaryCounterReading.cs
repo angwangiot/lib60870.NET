@@ -1,7 +1,7 @@
 /*
  *  BinaryCounterReading.cs
  *
- *  Copyright 2016 MZ Automation GmbH
+ *  Copyright 2016-2025 Michael Zillgith
  *
  *  This file is part of lib60870.NET
  *
@@ -146,7 +146,7 @@ namespace lib60870.CS101
             }
         }
 
-        internal BinaryCounterReading(byte[] msg, int startIndex)
+        public BinaryCounterReading(byte[] msg, int startIndex)
         {
             if (msg.Length < startIndex + 5)
                 throw new ASDUParsingException("Message too small for parsing BinaryCounterReading");
@@ -157,6 +157,14 @@ namespace lib60870.CS101
 
         public BinaryCounterReading()
         {
+        }
+
+        public BinaryCounterReading(BinaryCounterReading original)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                encodedValue[i] = original.encodedValue[i];
+            }
         }
     }
 }

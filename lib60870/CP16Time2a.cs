@@ -1,7 +1,7 @@
 /*
  *  CP16Time2a.cs
  *
- *  Copyright 2016 MZ Automation GmbH
+ *  Copyright 2016-2025 Michael Zillgith
  *
  *  This file is part of lib60870.NET
  *
@@ -21,17 +21,15 @@
  *  See COPYING file for the complete license text.
  */
 
-using System;
-
 namespace lib60870
 {
     public class CP16Time2a
     {
         private byte[] encodedValue = new byte[2];
 
-        internal CP16Time2a(byte[] msg, int startIndex)
+        public CP16Time2a(byte[] msg, int startIndex)
         {
-            if (msg.Length < startIndex + 3)
+            if (msg.Length < startIndex + 2)
                 throw new ASDUParsingException("Message too small for parsing CP16Time2a");
 
             for (int i = 0; i < 2; i++)
@@ -41,6 +39,34 @@ namespace lib60870
         public CP16Time2a(int elapsedTimeInMs)
         {
             ElapsedTimeInMs = elapsedTimeInMs;
+        }
+
+        public CP16Time2a()
+        {
+            for (int i = 0; i < 2; i++)
+                encodedValue[i] = 0;
+        }
+
+        public CP16Time2a(CP16Time2a original)
+        {
+            for (int i = 0; i < 2; i++)
+                encodedValue[i] = original.encodedValue[i];
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (!(obj is CP16Time2a))
+                return false;
+
+            return (GetHashCode() == obj.GetHashCode());
+        }
+
+        public override int GetHashCode()
+        {
+            return new System.Numerics.BigInteger(encodedValue).GetHashCode();
         }
 
         public int ElapsedTimeInMs

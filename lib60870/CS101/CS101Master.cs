@@ -1,31 +1,30 @@
 ﻿/*
-  *  Copyright 2018 MZ Automation GmbH
-  *
-  *  This file is part of lib60870.NET
-  *
-  *  lib60870.NET is free software: you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License as published by
-  *  the Free Software Foundation, either version 3 of the License, or
-  *  (at your option) any later version.
-  *
-  *  lib60870.NET is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  *  GNU General Public License for more details.
-  *
-  *  You should have received a copy of the GNU General Public License
-  *  along with lib60870.NET.  If not, see <http://www.gnu.org/licenses/>.
-  *
-  *  See COPYING file for the complete license text.
-  */
-
-using System;
-using System.IO.Ports;
-using System.Collections.Generic;
+ *  Copyright 2016-2025 Michael Zillgith
+ *
+ *  This file is part of lib60870.NET
+ *
+ *  lib60870.NET is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  lib60870.NET is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with lib60870.NET.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  See COPYING file for the complete license text.
+ */
 
 using lib60870.linklayer;
-using System.Threading;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Ports;
+using System.Threading;
 
 namespace lib60870.CS101
 {
@@ -39,6 +38,8 @@ namespace lib60870.CS101
 
         protected SerialPort port = null;
         protected bool running = false;
+
+        private bool fatalError = false;
 
         private void ReceiveMessageLoop()
         {
@@ -74,10 +75,24 @@ namespace lib60870.CS101
         /// </summary>
         public void Run()
         {
-            linkLayer.Run();
+            if (fatalError == false)
+            {
+                linkLayer.Run();
 
-            if (fileClient != null)
-                fileClient.HandleFileService();
+                if (fileClient != null)
+                    fileClient.HandleFileService();
+            }
+
+        }
+
+        private void fatalErrorHandler(object sender, EventArgs eventArgs)
+        {
+            fatalError = true;
+        }
+
+        public void AddPortDeniedHandler(EventHandler eventHandler)
+        {
+            linkLayer.AddPortDeniedHandler(eventHandler);
         }
 
         /// <summary>
@@ -85,6 +100,8 @@ namespace lib60870.CS101
         /// </summary>
         public void Start()
         {
+            linkLayer.AddPortDeniedHandler(fatalErrorHandler);
+
             if (port != null)
             {
                 if (port.IsOpen == false)
@@ -145,6 +162,8 @@ namespace lib60870.CS101
         private PrimaryLinkLayerUnbalanced linkLayerUnbalanced = null;
         private PrimaryLinkLayerBalanced primaryLinkLayer = null;
 
+        private SecondaryLinkLayer secondaryLinkLayer = null;
+
         private SerialTransceiverFT12 transceiver;
 
         /* selected slave address for unbalanced mode */
@@ -174,17 +193,17 @@ namespace lib60870.CS101
         public CS101Master(SerialPort port, LinkLayerMode mode, LinkLayerParameters llParams = null, ApplicationLayerParameters alParams = null)
         {
             if (llParams == null)
-                this.linkLayerParameters = new LinkLayerParameters();
+                linkLayerParameters = new LinkLayerParameters();
             else
-                this.linkLayerParameters = llParams;
+                linkLayerParameters = llParams;
 
             if (alParams == null)
-                this.appLayerParameters = new ApplicationLayerParameters();
+                appLayerParameters = new ApplicationLayerParameters();
             else
-                this.appLayerParameters = alParams;
+                appLayerParameters = alParams;
 
 
-            this.transceiver = new SerialTransceiverFT12(port, linkLayerParameters, DebugLog);
+            transceiver = new SerialTransceiverFT12(port, linkLayerParameters, DebugLog);
 
             linkLayer = new LinkLayer(buffer, linkLayerParameters, transceiver, DebugLog);
             linkLayer.LinkLayerMode = mode;
@@ -196,7 +215,8 @@ namespace lib60870.CS101
                 primaryLinkLayer = new PrimaryLinkLayerBalanced(linkLayer, GetUserData, DebugLog);
 
                 linkLayer.SetPrimaryLinkLayer(primaryLinkLayer);
-                linkLayer.SetSecondaryLinkLayer(new SecondaryLinkLayerBalanced(linkLayer, 0, HandleApplicationLayer, DebugLog));
+                secondaryLinkLayer = new SecondaryLinkLayerBalanced(linkLayer, 0, HandleApplicationLayer, DebugLog);
+                linkLayer.SetSecondaryLinkLayer(secondaryLinkLayer);
 
                 userDataQueue = new Queue<BufferFrame>();
             }
@@ -208,23 +228,23 @@ namespace lib60870.CS101
 
             this.port = port;
 
-            this.fileClient = null;
+            fileClient = null;
         }
 
         public CS101Master(Stream serialStream, LinkLayerMode mode, LinkLayerParameters llParams = null, ApplicationLayerParameters alParams = null)
         {
             if (llParams == null)
-                this.linkLayerParameters = new LinkLayerParameters();
+                linkLayerParameters = new LinkLayerParameters();
             else
-                this.linkLayerParameters = llParams;
+                linkLayerParameters = llParams;
 
             if (alParams == null)
-                this.appLayerParameters = new ApplicationLayerParameters();
+                appLayerParameters = new ApplicationLayerParameters();
             else
-                this.appLayerParameters = alParams;
+                appLayerParameters = alParams;
 
 
-            this.transceiver = new SerialTransceiverFT12(serialStream, linkLayerParameters, DebugLog);
+            transceiver = new SerialTransceiverFT12(serialStream, linkLayerParameters, DebugLog);
 
             linkLayer = new LinkLayer(buffer, linkLayerParameters, transceiver, DebugLog);
             linkLayer.LinkLayerMode = mode;
@@ -246,7 +266,7 @@ namespace lib60870.CS101
                 linkLayer.SetPrimaryLinkLayer(linkLayerUnbalanced);
             }
 
-            this.fileClient = null;
+            fileClient = null;
         }
 
         /// <summary>
@@ -256,9 +276,8 @@ namespace lib60870.CS101
         /// <param name="characterTimeout">Timeout to wait for next characters in a message</param>
         public void SetTimeouts(int messageTimeout, int characterTimeout)
         {
-            this.transceiver.SetTimeouts(messageTimeout, characterTimeout);
+            transceiver.SetTimeouts(messageTimeout, characterTimeout);
         }
-
 
         public void SetASDUReceivedHandler(ASDUReceivedHandler handler, object parameter)
         {
@@ -268,7 +287,8 @@ namespace lib60870.CS101
 
         public void AddSlave(int slaveAddress)
         {
-            linkLayerUnbalanced.AddSlaveConnection(slaveAddress);
+            if (linkLayerUnbalanced != null)
+                linkLayerUnbalanced.AddSlaveConnection(slaveAddress);
         }
 
         public LinkLayerState GetLinkLayerState(int slaveAddress)
@@ -296,12 +316,15 @@ namespace lib60870.CS101
             set
             {
                 UseSlaveAddress(value);
+
+                if (secondaryLinkLayer != null)
+                    secondaryLinkLayer.Address = slaveAddress;
             }
 
             get
             {
                 if (primaryLinkLayer == null)
-                    return this.slaveAddress;
+                    return slaveAddress;
                 else
                     return primaryLinkLayer.LinkLayerAddressOtherStation;
             }
@@ -315,8 +338,8 @@ namespace lib60870.CS101
         {
             if (primaryLinkLayer != null)
                 primaryLinkLayer.LinkLayerAddressOtherStation = slaveAddress;
-            else
-                this.slaveAddress = slaveAddress;
+
+            this.slaveAddress = slaveAddress;
         }
 
         void IPrimaryLinkLayerCallbacks.AccessDemand(int slaveAddress)
@@ -377,7 +400,7 @@ namespace lib60870.CS101
             try
             {
                 if (linkLayerUnbalanced != null)
-                     linkLayerUnbalanced.RequestClass1Data(address);
+                    linkLayerUnbalanced.RequestClass1Data(address);
             }
             catch (LinkLayerBusyException)
             {
@@ -584,12 +607,12 @@ namespace lib60870.CS101
             fileClient.RequestFile(ca, ioa, nof, receiver);
         }
 
-        public override void SendFile (int ca, int ioa, NameOfFile nof, IFileProvider fileProvider)
+        public override void SendFile(int ca, int ioa, NameOfFile nof, IFileProvider fileProvider)
         {
             if (fileClient == null)
-                fileClient = new FileClient (this, DebugLog);
+                fileClient = new FileClient(this, DebugLog);
 
-            fileClient.SendFile (ca, ioa, nof, fileProvider);
+            fileClient.SendFile(ca, ioa, nof, fileProvider);
         }
     }
 

@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright 2016 MZ Automation GmbH
+ *  Copyright 2016-2025 Michael Zillgith
  *
  *  This file is part of lib60870.NET
  *
@@ -18,8 +18,6 @@
  *
  *  See COPYING file for the complete license text.
  */
-
-using System;
 
 namespace lib60870.CS101
 {
@@ -74,7 +72,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.qoi;
+                return qoi;
             }
             set
             {
@@ -141,7 +139,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.qcc;
+                return qcc;
             }
             set
             {
@@ -152,7 +150,7 @@ namespace lib60870.CS101
         public CounterInterrogationCommand(int ioa, byte qoi)
             : base(ioa)
         {
-            this.qcc = qoi;
+            qcc = qoi;
         }
 
         internal CounterInterrogationCommand(ApplicationLayerParameters parameters, byte[] msg, int startIndex)
@@ -354,7 +352,7 @@ namespace lib60870.CS101
             if ((msg.Length - startIndex) < GetEncodedSize())
                 throw new ASDUParsingException("Message too small");
 
-            if (msg[startIndex++] != 0xcc)
+            if (msg[startIndex++] != 0xaa)
                 valid = false;
 
             if (msg[startIndex] != 0x55)
@@ -365,7 +363,7 @@ namespace lib60870.CS101
         {
             base.Encode(frame, parameters, isSequence);
 
-            frame.SetNextByte(0xcc);
+            frame.SetNextByte(0xaa);
             frame.SetNextByte(0x55);
         }
     }
@@ -399,7 +397,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.newTime;
+                return newTime;
             }
             set
             {
@@ -466,7 +464,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.qrp;
+                return qrp;
             }
             set
             {
@@ -529,7 +527,7 @@ namespace lib60870.CS101
         {
             get
             {
-                return this.delay;
+                return delay;
             }
             set
             {
